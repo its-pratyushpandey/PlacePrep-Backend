@@ -26,41 +26,81 @@ def _ensure_project_root_on_syspath() -> None:
 
 _ensure_project_root_on_syspath()
 
-from backend.models import (  # noqa: E402
-    User,
-    UserCreate,
-    UserLogin,
-    Token,
-    Problem,
-    ProblemCreate,
-    Company,
-    CompanyCreate,
-    Application,
-    ApplicationCreate,
-    ApplicationUpdate,
-    MockInterview,
-    MockInterviewCreate,
-    MockInterviewAnswer,
-    ResumeAnalysis,
-    ChatMessage,
-    ChatRequest,
-    ReadinessMetric,
-)
+try:
+    # Monorepo layout: imports via the `backend` package.
+    from backend.models import (  # noqa: E402
+        User,
+        UserCreate,
+        UserLogin,
+        Token,
+        Problem,
+        ProblemCreate,
+        Company,
+        CompanyCreate,
+        Application,
+        ApplicationCreate,
+        ApplicationUpdate,
+        MockInterview,
+        MockInterviewCreate,
+        MockInterviewAnswer,
+        ResumeAnalysis,
+        ChatMessage,
+        ChatRequest,
+        ReadinessMetric,
+    )
+except ModuleNotFoundError as e:  # pragma: no cover
+    # Backend-only repo layout: modules live at repo root (server.py, models.py, ...).
+    if e.name not in {"backend", "backend.models"}:
+        raise
+    from models import (  # type: ignore
+        User,
+        UserCreate,
+        UserLogin,
+        Token,
+        Problem,
+        ProblemCreate,
+        Company,
+        CompanyCreate,
+        Application,
+        ApplicationCreate,
+        ApplicationUpdate,
+        MockInterview,
+        MockInterviewCreate,
+        MockInterviewAnswer,
+        ResumeAnalysis,
+        ChatMessage,
+        ChatRequest,
+        ReadinessMetric,
+    )
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
 # IMPORTANT: modules below read env vars at import-time.
-from backend.auth_service import (  # noqa: E402
-    verify_password,
-    get_password_hash,
-    create_access_token,
-    create_refresh_token,
-    decode_token,
-)
-from backend.ai_service import ai_service  # noqa: E402
-from backend.resume_service import resume_service  # noqa: E402
-from backend.recommendation_service import recommendation_service  # noqa: E402
+try:
+    from backend.auth_service import (  # noqa: E402
+        verify_password,
+        get_password_hash,
+        create_access_token,
+        create_refresh_token,
+        decode_token,
+    )
+    from backend.ai_service import ai_service  # noqa: E402
+    from backend.resume_service import resume_service  # noqa: E402
+    from backend.recommendation_service import recommendation_service  # noqa: E402
+except ModuleNotFoundError as e:  # pragma: no cover
+    if not (e.name == "backend" or (e.name and e.name.startswith("backend."))):
+        raise
+    from auth_service import (  # type: ignore
+        verify_password,
+        get_password_hash,
+        create_access_token,
+        create_refresh_token,
+        decode_token,
+    )
+    from ai_service import ai_service  # type: ignore
+    from resume_service import resume_service  # type: ignore
+    from recommendation_service import recommendation_service  # type: ignore
 
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)

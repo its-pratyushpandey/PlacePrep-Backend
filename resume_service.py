@@ -1,7 +1,12 @@
 import PyPDF2
 from io import BytesIO
 from typing import Dict, Any
-from backend.ai_service import ai_service
+try:
+    from backend.ai_service import ai_service
+except ModuleNotFoundError as e:  # pragma: no cover
+    if e.name not in {"backend", "backend.ai_service"}:
+        raise
+    from ai_service import ai_service  # type: ignore
 
 class ResumeService:
     @staticmethod
