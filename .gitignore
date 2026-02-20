@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+*.pyo
+*.pyo
+
+# Environments
+.venv/
+venv/
+.env
+
+# Editor/OS
+.vscode/
+.DS_Store
+
+# Logs
+*.log
+
+# Test / build
+.pytest_cache/
+.mypy_cache/
