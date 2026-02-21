@@ -128,11 +128,16 @@ dev_origins = [
 extra_origins = _parse_cors_origins(os.environ.get("CORS_ORIGINS"))
 allowed_origins = list(dict.fromkeys(dev_origins + extra_origins))
 
+# Optional: allow dynamic origins (e.g. Vercel preview deployments) via regex.
+# Example: ^https://.*\.vercel\.app$
+allowed_origin_regex = (os.environ.get("CORS_ORIGIN_REGEX") or "").strip() or None
+
 # Add CORS middleware immediately after app creation - CRITICAL for proper CORS handling
 # NOTE: withCredentials=true in the frontend requires explicit origins (not '*').
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
+    allow_origin_regex=allowed_origin_regex,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
